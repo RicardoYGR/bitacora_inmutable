@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Audit Log Lab | Escenario 03</title>
+<style>
+:root{--bg:#0b0d14;--panel:#131722;--panel2:#191f2d;--line:#293144;--text:#eef1f8;--muted:#929bad;--purple:#9a82ff;--blue:#66a9ff;--green:#55d6a1;--red:#ff7185;--amber:#f3c56c}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 15% -10%,#252044 0,transparent 34%),var(--bg);color:var(--text);font:14px/1.5 Inter,Segoe UI,Arial,sans-serif}
+.wrap{max-width:1240px;margin:auto;padding:28px 22px 60px}.top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:25px}.brand{display:flex;gap:13px;align-items:center}.logo{width:43px;height:43px;border-radius:14px;background:linear-gradient(135deg,#8065ef,#4b9eea);display:grid;place-items:center;font-size:21px;box-shadow:0 8px 28px #6650cf44}.eyebrow{color:var(--purple);font-size:10px;font-weight:800;letter-spacing:1.8px}.brand h1{font-size:19px;margin:1px 0 0;letter-spacing:.2px}.pill{border:1px solid #335d50;color:var(--green);background:#14251f;padding:6px 11px;border-radius:99px;font-size:11px;font-weight:700}.hero{margin-bottom:22px}.hero h2{font-size:clamp(24px,4vw,34px);margin:0 0 6px;letter-spacing:-.8px}.hero p{color:var(--muted);margin:0;max-width:750px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin:22px 0}.card,.panel{background:linear-gradient(180deg,#171c29,#121722);border:1px solid var(--line);border-radius:16px}.stat{padding:16px}.stat small{color:var(--muted);display:block;font-size:11px}.stat strong{font-size:25px;display:block;margin-top:3px}.good{color:var(--green)}.purple{color:var(--purple)}.blue{color:var(--blue)}.amber{color:var(--amber)}
+.grid{display:grid;grid-template-columns:1.1fr .9fr;gap:15px}.panel{padding:19px;min-width:0}.panel-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:15px}.panel h3{font-size:15px;margin:0}.sub{font-size:11px;color:var(--muted)}.actions{display:flex;flex-wrap:wrap;gap:9px}.btn{border:1px solid var(--line);background:#202738;color:var(--text);padding:10px 13px;border-radius:10px;cursor:pointer;font-weight:650;font-size:12px;transition:.18s}.btn:hover{transform:translateY(-1px);border-color:#7b69d9}.btn.primary{background:linear-gradient(120deg,#745be0,#4c80d8);border:0}.btn.success{background:#17372e;border-color:#28664f;color:#8aebc1}.btn.danger{background:#3a202a;border-color:#713342;color:#ff9eac}.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}.select{background:#202738;border:1px solid var(--line);color:var(--text);border-radius:9px;padding:10px;min-width:185px}.row{display:flex;gap:9px;flex-wrap:wrap;align-items:center}.records{display:flex;flex-direction:column;gap:8px}.record{display:flex;justify-content:space-between;align-items:center;gap:12px;background:#171e2b;border:1px solid #252f42;border-radius:11px;padding:11px 12px}.record b{font-size:12px}.record small{display:block;color:var(--muted);font-size:10px}.tag{font-size:10px;padding:4px 8px;border-radius:99px;background:#17352c;color:var(--green);white-space:nowrap}.tag.bad{background:#3b2029;color:#ff9eac}.empty{padding:25px 12px;text-align:center;color:var(--muted);border:1px dashed #344056;border-radius:12px}.view-switch{display:flex;gap:5px;background:#0e121b;padding:4px;border-radius:10px}.view-switch button{border:0;background:transparent;color:var(--muted);padding:7px 10px;border-radius:7px;cursor:pointer;font-size:11px}.view-switch button.active{background:#2b2a48;color:#d9d1ff}.terminal{background:#090d14;border:1px solid #273044;border-radius:12px;padding:13px;height:205px;overflow:auto;font:11px/1.7 ui-monospace,SFMono-Regular,Consolas,monospace}.term-line{color:#a6b1c4}.term-line:before{content:'› ';color:var(--purple)}.term-line.warn{color:var(--amber)}.term-line.ok{color:var(--green)}.steps{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-top:15px}.step{background:#171e2b;border:1px solid #293449;border-radius:10px;padding:10px 8px;text-align:center}.step span{display:block;color:var(--purple);font-weight:800;font-size:10px}.step b{display:block;font-size:10px;margin-top:5px}.step small{display:block;color:var(--muted);font-size:9px;margin-top:3px}.result{margin-top:12px;padding:12px;border-radius:11px;background:#172b25;border:1px solid #285742;color:#a2edc9}.result.warn{background:#34252a;border-color:#70414c;color:#ffb4bf}.result b{display:block;margin-bottom:2px}.lower{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-top:15px}.hidden{display:none!important}.foot{color:#6f7a8e;font-size:10px;margin-top:18px;text-align:center}.notice{border:1px solid #5a4a2a;background:#282318;color:#e8cf98;padding:11px 13px;border-radius:11px;font-size:11px;margin-top:15px}
+.chain{display:flex;align-items:stretch;overflow-x:auto;padding-bottom:8px}.lnk{align-self:center;color:var(--purple);font-size:24px;padding:0 7px}.blk{min-width:165px;background:#171e2b;border:1px solid #28664f;border-radius:12px;padding:11px 12px;display:flex;flex-direction:column;gap:3px}.blk small{color:var(--muted);font-size:10px}.blk b{font-size:12px}.blk code{color:var(--green);font-size:11px}.blk i{color:var(--blue);font-size:10px;font-style:normal}.blk.bad{border-color:#713342;background:#3a202a}.blk.bad code{color:var(--red)}.blk.aff{border-color:#70582a;opacity:.85}.blk.aff code{color:var(--amber)}
+@media(max-width:850px){.grid,.lower{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}}@media(max-width:520px){.wrap{padding:18px 12px 40px}.top{align-items:flex-start}.pill{font-size:9px}.stats{gap:8px}.stat{padding:12px}.steps{grid-template-columns:repeat(2,1fr)}.steps .step:last-child{grid-column:span 2}}
+</style></head>
+<body><main class="wrap">
+<header class="top"><div class="brand"><div class="logo">⌁</div><div><div class="eyebrow">SECURITY LAB / SCENARIO 03</div><h1>AUDIT LOG SYSTEM</h1></div></div><div class="pill">● DEMO EN NAVEGADOR</div></header>
+<section class="hero"><h2>Bitácora de auditoría <span class="purple">inalterable</span></h2><p>Laboratorio interactivo para generar registros, protegerlos y comprobar su integridad. Los datos de esta demostración son ficticios.</p></section>
+<section class="stats">
+<div class="card stat"><small>REGISTROS GENERADOS</small><strong id="count">0</strong></div><div class="card stat"><small>INTEGRIDAD DE CADENA</small><strong id="integrity" class="amber">Pendiente</strong></div><div class="card stat"><small>LOTES FIRMADOS</small><strong id="batches" class="purple">0</strong></div><div class="card stat"><small>FIRMA DIGITAL</small><strong id="signature" class="amber">Pendiente</strong></div>
+</section>
+<section class="panel" style="margin-bottom:15px"><div class="panel-head"><div><h3>Cadena de integridad</h3><div class="sub">Cada huella depende del registro anterior: si uno cambia, se rompen todos los siguientes</div></div><span class="tag">Vista de cadena</span></div><div class="chain" id="chain"></div></section>
+<section class="grid">
+<div class="panel"><div class="panel-head"><div><h3>01 / Generación de bitácora</h3><div class="sub">Crea eventos ficticios y agrégalos a la cadena protegida</div></div><span class="tag">HMAC-SHA-256</span></div>
+<div class="row" style="margin-bottom:13px"><select id="eventType" class="select"><option value="login">Acceso autorizado</option><option value="consulta">Consulta de recurso</option><option value="cambio">Cambio de configuración</option><option value="logout">Cierre de sesión</option></select><button class="btn primary" id="addBtn" onclick="act('/api/add',{kind:document.getElementById('eventType').value})">＋ Agregar registro</button></div>
+<div class="records" id="records"><div class="empty">Todavía no hay registros. Agrega el primer evento para comenzar.</div></div>
+<div class="row" style="margin-top:14px"><button class="btn success" onclick="act('/api/seal',{})">✦ Sellar lote Merkle + Ed25519</button><button class="btn" onclick="act('/api/verify',{})">✓ Verificar bitácora</button></div>
+<div id="result" class="result hidden"><b id="resultTitle">Proceso completado</b><span id="resultText"></span></div>
+</div>
+<div class="panel"><div class="panel-head"><div><h3>02 / Vista de operación</h3><div class="sub">Información visible según el nivel de acceso</div></div></div>
+<div class="view-switch"><button id="publicTab" class="active" onclick="setView('public')">Lo que ve el usuario</button><button id="internalTab" onclick="setView('internal')">Vista interna</button></div>
+<div id="publicView" style="padding-top:14px"><div class="sub" style="margin-bottom:9px">PANEL PÚBLICO / INFORMACIÓN NO SENSIBLE</div><div class="record"><div><b>Estado del servicio</b><small>Recepción de eventos</small></div><span class="tag">Operativo</span></div><div class="record" style="margin-top:8px"><div><b>Protección de registros</b><small>Datos protegidos por mecanismo criptográfico</small></div><span class="tag">Activa</span></div><div class="record" style="margin-top:8px"><div><b>Información criptográfica</b><small>Llaves, firmas y valores internos</small></div><span class="tag">Oculta</span></div><p class="sub" style="margin-top:13px">El usuario puede consultar el estado general, pero no recibe llaves, etiquetas HMAC, raíces Merkle ni firmas.</p></div>
+<div id="internalView" class="hidden" style="padding-top:14px"><div class="sub" style="margin-bottom:9px">CONSOLA INTERNA / DETALLE DEL PROCEDIMIENTO</div><div class="terminal" id="terminal"><div class="term-line ok">Sistema listo. Esperando operaciones...</div></div><div class="steps"><div class="step"><span>01</span><b>Evento</b><small>Entrada recibida</small></div><div class="step"><span>02</span><b>HMAC</b><small>Etiqueta calculada</small></div><div class="step"><span>03</span><b>Cadena</b><small>Enlace anterior</small></div><div class="step"><span>04</span><b>Merkle</b><small>Raíz del lote</small></div><div class="step"><span>05</span><b>Ed25519</b><small>Firma digital</small></div></div><p class="sub" style="margin-top:11px">Las llaves se generan con Web Crypto como no exportables y los valores secretos nunca se muestran en pantalla.</p></div>
+</div>
+</section>
+<section class="lower">
+<div class="panel"><div class="panel-head"><div><h3>03 / Laboratorio de integridad</h3><div class="sub">Prueba qué ocurre cuando alguien modifica un registro</div></div><span class="tag">Prueba controlada</span></div><p class="sub">Se modifica un evento ficticio únicamente en memoria. Después puedes ejecutar la verificación para observar el rechazo.</p><div class="actions"><button class="btn danger" onclick="act('/api/tamper',{})">⚠ Simular alteración</button><button class="btn" onclick="act('/api/verify',{})">Volver a verificar</button></div></div>
+<div class="panel"><div class="panel-head"><div><h3>04 / Comparación de ataque</h3><div class="sub">Hash simple frente a HMAC con llave</div></div><span class="tag">Demo de ataque</span></div><p class="sub">El primer caso permite recalcular la cadena porque la fórmula es pública. En el segundo, el atacante no conoce la llave HMAC.</p><button class="btn primary" onclick="runAttack()">▶ Ejecutar comparación</button><div id="attackResult" class="hidden" style="margin-top:12px"></div></div>
+</section>
+<div class="notice">Importante: esta versión corre completamente en tu navegador. Las llaves viven solo en memoria (no exportables) y todo se reinicia al recargar la página. Es una demostración educativa, no una bitácora de producción.</div>
+<div class="row" style="justify-content:space-between;margin-top:15px"><span class="sub">Entorno de demostración · Datos sintéticos</span><button class="btn" onclick="if(confirm('¿Reiniciar la demostración?'))act('/api/reset',{})">↻ Reiniciar laboratorio</button></div>
+<div class="foot">AUDIT LOG SYSTEM · BROWSER DEMO · NO SERVER REQUIRED</div>
+</main>
+<script>
+let currentView='public';
+function setView(v){currentView=v;document.getElementById('publicView').classList.toggle('hidden',v!=='public');document.getElementById('internalView').classList.toggle('hidden',v!=='internal');document.getElementById('publicTab').classList.toggle('active',v==='public');document.getElementById('internalTab').classList.toggle('active',v==='internal')}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function drawChain(s){const el=document.getElementById('chain');if(!s.records.length){el.innerHTML='<div class="empty" style="width:100%">La cadena aparecerá aquí cuando agregues registros.</div>';return}const lot=i=>{const b=s.batches.find(x=>i+1>=x.from&&i+1<=x.to);return b?'Sellado · '+b.id:'Sin sellar'};el.innerHTML=s.records.map((r,i)=>`${i?'<div class="lnk">→</div>':''}<div class="blk ${r.status==='Alterado'?'bad':r.status==='Afectado'?'aff':''}"><small>${esc(r.id)} · ${esc(r.status)}</small><b>${esc(r.event)}</b><code>huella ${esc(r.hash||'········')}…</code><i>${esc(lot(i))}</i></div>`).join('')}
+function render(s){drawChain(s);document.getElementById('count').textContent=s.count;document.getElementById('batches').textContent=s.batches.length;document.getElementById('integrity').textContent=s.integrity?'Íntegra':'Revisar';document.getElementById('integrity').className=s.integrity?'good':'amber';document.getElementById('signature').textContent=s.signed===null?'Pendiente':(s.signed?'Válida':'Inválida');document.getElementById('signature').className=s.signed===null?'amber':(s.signed?'good':'amber');
+const rec=document.getElementById('records');rec.innerHTML=s.records.length?s.records.map(r=>`<div class="record"><div><b>${esc(r.id)} · ${esc(r.event)}</b><small>Evento ficticio · información protegida</small></div><span class="tag ${r.status==='Válido'?'':'bad'}">${esc(r.status)}</span></div>`).join(''):'<div class="empty">Todavía no hay registros. Agrega el primer evento para comenzar.</div>';
+const term=document.getElementById('terminal');term.innerHTML=s.logs.length?s.logs.map(l=>`<div class="term-line ${l.status==='warn'?'warn':'ok'}">${esc(l.message)}</div>`).join(''):'<div class="term-line ok">Sistema listo. Esperando operaciones...</div>';
+const res=document.getElementById('result');if(s.last_result&&s.last_result.status!=='Pendiente'){res.classList.remove('hidden');res.classList.toggle('warn',s.last_result.status.includes('Alteración'));document.getElementById('resultTitle').textContent=s.last_result.status;document.getElementById('resultText').textContent=s.last_result.message}else res.classList.add('hidden');}
+
+/* ===== Motor criptográfico en el navegador (equivale a chain.py, merkle.py, signer.py y app.py) ===== */
+const E=new TextEncoder(),ZERO=new Uint8Array(32);
+const u64=i=>{const b=new Uint8Array(8);new DataView(b.buffer).setBigUint64(0,BigInt(i));return b};
+const cat=(...a)=>{const o=new Uint8Array(a.reduce((n,x)=>n+x.length,0));let p=0;a.forEach(x=>{o.set(x,p);p+=x.length});return o};
+const sha=async d=>new Uint8Array(await crypto.subtle.digest('SHA-256',d));
+const hex=b=>[...b].map(x=>x.toString(16).padStart(2,'0')).join('');
+const eq=(a,b)=>a.length===b.length&&a.every((x,i)=>x===b[i]);
+const ser=o=>JSON.stringify(Object.fromEntries(Object.keys(o).sort().map(k=>[k,o[k]])));
+const calcTag=async(k,i,reg,prev)=>new Uint8Array(await crypto.subtle.sign('HMAC',k,cat(u64(i),E.encode(ser(reg)),prev)));
+async function firstBad(k,entries){let prev=ZERO;for(let p=0;p<entries.length;p++){const e=entries[p];if(e.i!==p)return p;const exp=await calcTag(k,p,e.registro,prev);if(!eq(exp,e.tag))return p;prev=exp}return null}
+async function merkle(leaves){if(!leaves.length)throw new UserError('La lista de hojas no puede estar vacía.');let l=await Promise.all(leaves.map(h=>sha(cat(new Uint8Array([0]),h))));while(l.length>1){const n=[];for(let j=0;j<l.length-1;j+=2)n.push(await sha(cat(new Uint8Array([1]),l[j],l[j+1])));if(l.length%2)n.push(l[l.length-1]);l=n}return l[0]}
+const batchMsg=(id,n,root)=>{const h=new Uint8Array(12),d=new DataView(h.buffer);d.setBigUint64(0,BigInt(id));d.setUint32(8,n);return cat(h,root)};
+class UserError extends Error{}
+const EVENTS={login:['Acceso autorizado','login'],consulta:['Consulta de recurso','consulta_recurso'],cambio:['Cambio de configuración','cambio_configuracion'],logout:['Cierre de sesión','logout']};
+let HMAC_KEY,SIGN_PRIV,SIGN_PUB,records=[],batches=[],logs=[],lastResult={status:'Pendiente',message:'Agrega registros para comenzar.'};
+const log=(m,s='ok')=>{logs.unshift({message:m,status:s});logs.length=Math.min(logs.length,12)};
+const ready=(async()=>{
+  HMAC_KEY=await crypto.subtle.importKey('raw',crypto.getRandomValues(new Uint8Array(32)),{name:'HMAC',hash:'SHA-256'},false,['sign']);
+  const kp=await crypto.subtle.generateKey({name:'Ed25519'},false,['sign','verify']);
+  SIGN_PRIV=kp.privateKey;SIGN_PUB=kp.publicKey;
+})();
+async function addRecord(kind){
+  if(!EVENTS[kind])throw new UserError('Evento no permitido');
+  const [label,event]=EVENTS[kind],payload={actor:'usuario-demo',event},i=records.length;
+  const prev=records.length?records[records.length-1].tag:ZERO;
+  records.push({i,registro:payload,tag:await calcTag(HMAC_KEY,i,payload,prev),label});
+  log(`Registro ${String(i+1).padStart(3,'0')}: evento incorporado y protegido con HMAC-SHA-256.`);return i}
+async function verifyChain(){return firstBad(HMAC_KEY,records)}
+async function sealBatch(){
+  if(!records.length)throw new UserError('Primero agrega al menos un registro.');
+  if(await verifyChain()!==null)throw new UserError('No se puede sellar: la cadena no pasó la verificación.');
+  const start=batches.length?batches[batches.length-1].end:0,subset=records.slice(start);
+  if(!subset.length)throw new UserError('No hay registros nuevos para sellar.');
+  const root=await merkle(subset.map(x=>x.tag)),id=batches.length+1,msg=batchMsg(id,subset.length,root);
+  const signature=new Uint8Array(await crypto.subtle.sign('Ed25519',SIGN_PRIV,msg));
+  batches.push({id,start,end:records.length,count:subset.length,signature});
+  log(`Lote ${String(id).padStart(3,'0')}: raíz Merkle calculada y firma Ed25519 generada.`);return id}
+async function verifyAll(){
+  const bad=await verifyChain();
+  if(bad!==null)return{ok:false,bad_index:bad,signed:batches.length?false:null};
+  if(!batches.length)return{ok:true,bad_index:null,signed:null};
+  const res=[];
+  for(const b of batches){try{const root=await merkle(records.slice(b.start,b.end).map(x=>x.tag));res.push(await crypto.subtle.verify('Ed25519',SIGN_PUB,b.signature,batchMsg(b.id,b.count,root)))}catch{res.push(false)}}
+  const all=res.every(Boolean);return{ok:all,bad_index:null,signed:all}}
+async function publicState(){
+  const c=await verifyAll(),bad=c.bad_index;
+  const st=i=>bad!==null?(i===bad?'Alterado':(i>bad?'Afectado':'Válido')):(c.ok?'Válido':'Revisar');
+  return{count:records.length,
+    records:records.map(r=>({id:`EVT-${String(r.i+1).padStart(3,'0')}`,event:r.label,status:st(r.i),hash:hex(r.tag).slice(0,8)})),
+    batches:batches.map(b=>({id:`LOTE-${String(b.id).padStart(3,'0')}`,count:b.count,status:'Firmado',from:b.start+1,to:b.end})),
+    integrity:c.ok,signed:c.signed,logs,last_result:lastResult}}
+async function attackDemo(){
+  const weakTag=async(i,it,prev)=>sha(cat(u64(i),E.encode(ser(it)),prev));
+  const wr=[{event:'login'},{event:'consulta'},{event:'logout'}],wt=[];let prev=new Uint8Array(0);
+  for(let i=0;i<wr.length;i++){prev=await weakTag(i,wr[i],prev);wt.push(prev)}
+  wr[1].event='cambio_no_autorizado';prev=wt[0];
+  for(let i=1;i<wr.length;i++){prev=await weakTag(i,wr[i],prev);wt[i]=prev}
+  let weakPasses=true,p=new Uint8Array(0);
+  for(let i=0;i<wr.length;i++){p=await weakTag(i,wr[i],p);if(!eq(p,wt[i])){weakPasses=false;break}}
+  let prot=records.map(r=>({i:r.i,registro:{...r.registro},tag:r.tag}));
+  if(!prot.length){let pv=ZERO;for(const[i,e]of['login','consulta','logout'].entries()){const reg={actor:'usuario-demo',event:e},t=await calcTag(HMAC_KEY,i,reg,pv);prot.push({i,registro:reg,tag:t});pv=t}}
+  const k=Math.min(1,prot.length-1);prot[k].registro.event='cambio_no_autorizado';
+  prot[k].tag=await sha(cat(u64(k),E.encode(ser(prot[k].registro)),k?prot[k-1].tag:ZERO)); // falsificación sin la llave HMAC
+  const pb=await firstBad(HMAC_KEY,prot);
+  log('Laboratorio de ataque: SHA-256 simple pudo ser recalculado; HMAC rechazó la falsificación.','warn');
+  return{weak:{detected:!weakPasses,result:weakPasses?'Falsificación aceptada':'Detectada'},protected:{detected:pb!==null,result:pb!==null?`Alteración detectada en el evento ${pb+1}`:'No detectada'}}}
+async function route(path,body){
+  await ready;let attack;
+  if(path==='/api/add'){const i=await addRecord(body.kind);lastResult={status:'Correcto',message:`Registro ${String(i+1).padStart(3,'0')} agregado y protegido.`}}
+  else if(path==='/api/verify'){const r=await verifyAll();
+    if(r.ok){lastResult={status:'Integridad confirmada',message:'La cadena y los sellos disponibles pasaron la verificación.'};log('Verificación completada: cadena íntegra y firmas válidas.')}
+    else{lastResult={status:'Alteración detectada',message:r.bad_index!==null?`Se detectó un cambio desde el evento ${String(r.bad_index+1).padStart(3,'0')}.`:'Una firma de lote no coincide con los registros actuales.'};log('Verificación rechazada: se detectó una alteración.','warn')}}
+  else if(path==='/api/seal'){const id=await sealBatch();lastResult={status:'Lote sellado',message:`Lote ${String(id).padStart(3,'0')} firmado correctamente.`}}
+  else if(path==='/api/attack'){attack=await attackDemo();lastResult={status:'Prueba de ataque terminada',message:'La versión débil aceptó la falsificación; la versión HMAC la rechazó.'}}
+  else if(path==='/api/tamper'){if(!records.length)throw new UserError('Agrega registros antes de simular una alteración.');
+    records[Math.min(1,records.length-1)].registro.event='evento_modificado_sin_permiso';
+    lastResult={status:'Alteración simulada',message:'Se modificó un evento de prueba en memoria. Ejecuta Verificar para detectarlo.'};log('Simulación: un evento fue modificado sin recalcular su HMAC.','warn')}
+  else if(path==='/api/reset'){records=[];batches=[];logs=[];lastResult={status:'Entorno reiniciado',message:'La bitácora de demostración está vacía.'};log('Entorno de demostración reiniciado.')}
+  return{state:await publicState(),attack}}
+async function act(path,payload){const btns=document.querySelectorAll('button');btns.forEach(b=>b.disabled=true);
+  try{const d=await route(path,payload);render(d.state)}
+  catch(e){if(e instanceof UserError){alert(e.message);render(await publicState())}else{console.error(e);alert('No se pudo completar la operación. Tu navegador podría no soportar Ed25519 en Web Crypto; prueba con una versión reciente de Chrome, Edge, Firefox o Safari.')}}
+  finally{btns.forEach(b=>b.disabled=false)}}
+async function runAttack(){try{const d=await route('/api/attack',{});render(d.state);const box=document.getElementById('attackResult');box.classList.remove('hidden');box.innerHTML=`<div class="record"><div><b>Cadena con SHA-256 simple</b><small>El atacante recalculó los hashes</small></div><span class="tag bad">${esc(d.attack.weak.result)}</span></div><div class="record" style="margin-top:8px"><div><b>Cadena protegida con HMAC</b><small>La llave secreta no está disponible para el atacante</small></div><span class="tag">${esc(d.attack.protected.result)}</span></div>`}catch(e){console.error(e);alert('No se pudo ejecutar la comparación en este navegador.')}}
+ready.then(publicState).then(render).catch(e=>{console.error(e);alert('Este navegador no soporta Ed25519 en Web Crypto. Usa una versión reciente de Chrome, Edge, Firefox o Safari.')});
+</script></body></html>
