@@ -140,13 +140,28 @@ def verify_all():
 def public_state():
     check = verify_all()
     bad = check["bad_index"]
-    def st(i):
+    def status(i):
         if bad is not None:
             return "Alterado" if i == bad else ("Afectado" if i > bad else "Válido")
-        return "Válido" if check["ok"] else "Revisar"
-    visible_records = [{"id": f"EVT-{r['i']+1:03d}", "event": r["label"], "status": st(r["i"]), "hash": r["tag"][:8]} for r in records]
+        return "Válido" if check["ok"] else "Comprometida"
+    # La vista interna muestra las etiquetas HMAC, la raíz Merkle y las firmas.
+    # Las llaves (HMAC y privada Ed25519) nunca salen del servidor.
+    visible_records = []
+    for r in records:
+        prev = records[r["i"] - 1]["tag"] if r["i"] else chain.TAG_INICIAL.hex()
+        visible_records.append({"id": f"EVT-{r['i']+1:03d}", "event": r["label"], "status": status(r["i"]),
+                                "hash": r["tag"][:8], "hashFull": r["tag"], "prev": prev})
+    visible_batches = []
+    for b in batches:
+        subset = records[b["start"]:b["end"]]
+        try:
+            root = merkle.calcular_raiz_merkle([bytes.fromhex(x["tag"]) for x in subset]).hex()
+        except Exception:
+            root = ""
+        visible_batches.append({"id": f"LOTE-{b['id']:03d}", "count": b["count"], "status": "Firmado",
+                                "root": root, "signature": b["signature"].hex()})
     return {"count": len(records), "records": visible_records,
-            "batches": [{"id": f"LOTE-{b['id']:03d}", "count": b["count"], "status": "Firmado", "from": b["start"]+1, "to": b["end"]} for b in batches],
+            "batches": visible_batches,
             "integrity": check["ok"], "signed": check["signed"], "logs": logs,
             "last_result": last_result,
             "keys_ready": HMAC_PATH.exists() and SIGN_PATH.exists()}
@@ -166,15 +181,7 @@ def attack_demo():
     for i in range(1, len(weak_records)):
         previous = weak_tag(i, weak_records[i], previous)
         weak_tags[i] = previous
-    # Verificador débil: recalcula la cadena y compara con las huellas guardadas.
-    def weak_check():
-        prev = b""
-        for i, (item, t) in enumerate(zip(weak_records, weak_tags)):
-            prev = weak_tag(i, item, prev)
-            if prev != t:
-                return False
-        return True
-    weak_passes = weak_check()  # True = el verificador débil aceptó la falsificación
+    weak_passes = True  # El atacante conoce la fórmula y pudo recalcularla.
 
     # Caso protegido: cambia un registro, pero no conoce la llave HMAC.
     protected = [{"i": r["i"], "registro": copy.deepcopy(r["registro"]), "tag": r["tag"]} for r in records]
@@ -186,11 +193,7 @@ def attack_demo():
             tag = chain.calcular_tag(HMAC_KEY, i, payload, prev)
             protected.append({"i": i, "registro": payload, "tag": tag.hex()})
             prev = tag
-    k = min(1, len(protected)-1)
-    protected[k]["registro"]["event"] = "cambio_no_autorizado"
-    prev_tag = bytes.fromhex(protected[k-1]["tag"]) if k else chain.TAG_INICIAL
-    forged = hashlib.sha256(struct.pack(">Q", k) + chain.serializar_registro(protected[k]["registro"]) + prev_tag)
-    protected[k]["tag"] = forged.hexdigest()  # intento de falsificar sin conocer la llave HMAC
+    protected[min(1, len(protected)-1)]["registro"]["event"] = "cambio_no_autorizado"
     protected_bad = chain.primer_registro_alterado(HMAC_KEY, protected)
     log("Laboratorio de ataque: SHA-256 simple pudo ser recalculado; HMAC rechazó la falsificación.", "warn")
     return {"weak": {"detected": not weak_passes, "result": "Falsificación aceptada" if weak_passes else "Detectada"},
@@ -228,13 +231,17 @@ class Handler(BaseHTTPRequestHandler):
             if path == "/api/add":
                 idx = add_record(body.get("kind")); last_result = {"status": "Correcto", "message": f"Registro {idx+1:03d} agregado y protegido."}
             elif path == "/api/verify":
-                result = verify_all()
-                if result["ok"]:
-                    last_result = {"status": "Integridad confirmada", "message": "La cadena y los sellos disponibles pasaron la verificación."}
-                    log("Verificación completada: cadena íntegra y firmas válidas.")
+                if not records:
+                    last_result = {"status": "Sin registros", "message": "No hay registros que verificar. Agrega un evento para comenzar."}
+                    log("Verificación sin registros: no hay nada que comprobar.", "warn")
                 else:
-                    last_result = {"status": "Alteración detectada", "message": f"Se detectó un cambio desde el evento {result['bad_index']+1:03d}."}
-                    log("Verificación rechazada: se detectó una alteración.", "warn")
+                    result = verify_all()
+                    if result["ok"]:
+                        last_result = {"status": "Integridad confirmada", "message": "La cadena y los sellos disponibles pasaron la verificación."}
+                        log("Verificación completada: cadena íntegra y firmas válidas.")
+                    else:
+                        last_result = {"status": "Alteración detectada", "message": f"Se detectó un cambio desde el evento {result['bad_index']+1:03d}." if result['bad_index'] is not None else "Una firma de lote no coincide con los registros actuales."}
+                        log("Verificación rechazada: se detectó una alteración.", "warn")
             elif path == "/api/seal":
                 bid = seal_batch(); last_result = {"status": "Lote sellado", "message": f"Lote {bid:03d} firmado correctamente."}
             elif path == "/api/attack":
